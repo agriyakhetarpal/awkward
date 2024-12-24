@@ -19,14 +19,21 @@ CURRENT_DIR = os.path.dirname(os.path.realpath(__file__))
 
 
 def reproducible_datetime():
-    build_date = datetime.datetime.utcfromtimestamp(
-        int(os.environ.get("SOURCE_DATE_EPOCH", time.time()))
-    )
+    import sys
+
+    timestamp = int(os.environ.get("SOURCE_DATE_EPOCH", time.time()))
+
+    if sys.version_info >= (3, 11):
+        build_date = datetime.datetime.fromtimestamp(timestamp, tz=datetime.UTC)
+    else:
+        build_date = datetime.datetime.utcfromtimestamp(
+            int(os.environ.get("SOURCE_DATE_EPOCH", time.time()))
+        )
     return build_date.isoformat().replace("T", " AT ")[:22]
 
 
 class Argument:
-    __slots__ = ("name", "typename", "direction", "role")
+    __slots__ = ("direction", "name", "role", "typename")
 
     def __init__(self, name, typename, direction, role="default"):
         self.name = name

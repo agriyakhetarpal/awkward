@@ -463,7 +463,7 @@ def apply_step(
                         named_axis = _add_named_axis(named_axis, depth, ndim)
                         depth_context[NAMED_AXIS_KEY][i] = (
                             _unify_named_axis(named_axis, seen_named_axis),
-                            ndim + 1,
+                            ndim + 1 if ndim is not None else ndim,
                         )
                         if o.is_leaf:
                             _export_named_axis_from_depth_to_lateral(
@@ -645,7 +645,7 @@ def apply_step(
                         # rightbroadcasting adds a new first(!) dimension as depth
                         depth_context[NAMED_AXIS_KEY][i] = (
                             _add_named_axis(named_axis, depth, ndim),
-                            ndim + 1,
+                            ndim + 1 if ndim is not None else ndim,
                         )
                         if x.is_leaf:
                             _export_named_axis_from_depth_to_lateral(
@@ -734,7 +734,7 @@ def apply_step(
                     # leftbroadcasting adds a new last dimension at depth + 1
                     depth_context[NAMED_AXIS_KEY][i] = (
                         _add_named_axis(named_axis, depth + 1, ndim),
-                        ndim + 1,
+                        ndim + 1 if ndim is not None else ndim,
                     )
                     if x.is_leaf:
                         _export_named_axis_from_depth_to_lateral(
@@ -860,7 +860,7 @@ def apply_step(
             if not isinstance(xyc, Content):
                 unmasked.append(xyc)
                 masks.append(
-                    NumpyArray(backend.nplike.zeros(len(inputs[2]), dtype=np.int8))
+                    NumpyArray(backend.nplike.zeros(inputs[2].length, dtype=np.int8))
                 )
             elif not xyc.is_option:
                 unmasked.append(xyc)

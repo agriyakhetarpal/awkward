@@ -170,7 +170,7 @@ jobs:
 
   build-docs:
     runs-on: ubuntu-22.04
-    needs: [awkward-cpp-wasm, awkward-cpp-x86-64, awkward, execute-cppyy]
+    needs: [awkward-cpp-x86-64, awkward, execute-cppyy]
     name: Build Docs
     defaults:
       run:
@@ -213,12 +213,6 @@ jobs:
       run: |
         mkdir -p docs/lite/pypi/
         cp dist/awkward*.whl docs/lite/pypi/
-
-    - name: Download & copy awkward-cpp WASM wheel to JupyterLite
-      uses: actions/download-artifact@v4
-      with:
-        name: awkward-cpp-wasm
-        path: docs/lite/pypi
 
     - name: Download awkward-cpp x86_64 wheel
       uses: actions/download-artifact@v4
