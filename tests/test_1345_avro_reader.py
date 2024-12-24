@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import os
+import platform
+import sys
 
 import numpy as np  # noqa: F401
 import pytest
@@ -11,6 +13,13 @@ import awkward as ak
 
 DIR = os.path.dirname(__file__)
 SAMPLES_DIR = os.path.join(os.path.abspath(DIR), "samples")
+IS_WASM = sys.platform == "emscripten" or platform.machine in ["wasm32", "wasm64"]
+
+
+pytestmark = pytest.mark.skipif(
+    IS_WASM,
+    reason="32-bit WASM does not yet comply with ForthMachine64",
+)
 
 
 def test_int():
