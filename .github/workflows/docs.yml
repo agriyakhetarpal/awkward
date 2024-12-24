@@ -17,6 +17,40 @@ env:
   SOURCE_DATE_EPOCH: "1668811211"
 
 jobs:
+  awkward-cpp-wasm:
+    name: Build C++ WASM
+    runs-on: ubuntu-22.04
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: true
+
+    - name: Setup Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.12"
+
+    - name: Generate build files
+      run: pipx run nox -s prepare -- --headers --signatures --tests
+
+    - uses: pypa/cibuildwheel@v2.22
+      with:
+        package-dir: awkward-cpp
+        output-dir: awkward-cpp/dist
+      env:
+        CIBW_PLATFORM: pyodide
+        FORCE_COLOR: 3
+
+    - run: ls -l awkward-cpp/dist
+
+    - name: Upload wheel
+      uses: actions/upload-artifact@v4
+      with:
+        name: awkward-cpp-wasm
+        path: awkward-cpp/dist/*.whl
+        if-no-files-found: error
+
+
   awkward-cpp-x86-64:
     runs-on: ubuntu-22.04
     name: Build C++ x86
@@ -248,7 +282,7 @@ jobs:
     needs: [build-docs]
     name: Deploy Branch Preview
     # We can only deploy for PRs on host repo
-    if: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository }}
+    if: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == 'scikit-hep/awkward' }}
     permissions:
       id-token: write
       contents: read
