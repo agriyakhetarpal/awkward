@@ -36,15 +36,19 @@ jobs:
     - uses: pypa/cibuildwheel@v2.22
       with:
         package-dir: awkward-cpp
+        output-dir: awkward-cpp/dist
       env:
         CIBW_PLATFORM: pyodide
         FORCE_COLOR: 3
+
+    - run: ls -l awkward-cpp/dist
 
     - name: Upload wheel
       uses: actions/upload-artifact@v4
       with:
         name: awkward-cpp-wasm
-        path: awkward-cpp/dist/awkward*wasm32.whl
+        path: awkward-cpp/dist/*.whl
+        if-no-files-found: error
 
 
   awkward-cpp-x86-64:
