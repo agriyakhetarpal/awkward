@@ -2,11 +2,10 @@
 
 from __future__ import annotations
 
-import multiprocessing
 import os
 import pickle
+import platform
 import sys
-from concurrent.futures import ProcessPoolExecutor
 
 if sys.version_info < (3, 12):
     import importlib_metadata
@@ -17,14 +16,16 @@ import pytest
 
 import awkward as ak
 
+IS_WASM = sys.platform == "emscripten" or platform.machine in ["wasm32", "wasm64"]
+
 
 def has_entry_point():
     return bool(importlib_metadata.entry_points(group="awkward.pickle.reduce").names)
 
 
 pytestmark = pytest.mark.skipif(
-    has_entry_point(),
-    reason="Custom pickler is already registered!",
+    has_entry_point() or IS_WASM,
+    reason="Custom pickler is already registered or running in WASM!",
 )
 
 
@@ -47,6 +48,9 @@ def _pickle_complex_array_and_return_form_impl():
 def pickle_complex_array_and_return_form(pickler_source, tmp_path):
     """Create a new (spawned) process, and register the given pickler source
     via entrypoints"""
+    import multiprocessing
+    from concurrent.futures import ProcessPoolExecutor
+
     with ProcessPoolExecutor(
         1,
         initializer=_init_process_with_pickler,
